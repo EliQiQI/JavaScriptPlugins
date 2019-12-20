@@ -1,0 +1,61 @@
+class Counter{
+    //min是最小值,max是最大值,
+    //reduce是--按钮,add是增加按钮,show是输入文本框
+
+    constructor(min,max,reduce,add,show){
+        this.min=min;
+        this.max=max;
+        this.reduce=reduce;
+        this.add=add;
+        this.show=show;
+        this.number=min;
+        this.giveShow();
+        this.reduceBtn();
+        this.addBtn();
+        this.listenShow();
+    }
+    reduceBtn(){
+        this.reduce.css({
+            textAlign:'center',
+            cursor:'pointer',
+        });
+        this.reduce.on('click',e=>{
+            this.number--;
+            if(this.number<this.min){
+                this.number=this.min;
+            }
+            this.giveShow();
+        })
+    }
+    addBtn(){
+        this.add.css({
+            textAlign:'center',
+            cursor:'pointer',
+        });
+        this.add.on('click',e=>{
+            this.number++;
+            if(this.number>this.max){
+                this.number=this.max;
+            }
+            this.giveShow();
+        })
+    }
+    listenShow(){
+        this.show.css({
+            textAlign:'center',
+            
+        });
+        this.show.on('change',e=>{
+            let num=this.show.val();
+
+            if(num>this.max)num=this.max;
+            if(num<this.min)num=this.min;
+            this.number=num;
+            this.giveShow();
+        })
+    }
+    giveShow(){
+        if(isNaN(this.number)){this.number=this.min;}
+        this.show.val(this.number);
+    }
+}
