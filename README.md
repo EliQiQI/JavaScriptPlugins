@@ -4,3 +4,4 @@
 ## Zoom2 放大镜插件  
 ## Counter 计数器插件
 ## server node本地测试服务器
+## 视频播放器插件
