@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>视频播放控件</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        button {
+            background: #ccc;
+            float: left;
+            outline: none;
+            display: block;
+            margin-right: 20px;
+            margin-top: 10px;
+            height: 30px;
+            border-radius: 15px;
+            line-height: 30px;
+            background: #06B804;
+            color: #fff;
+            font-weight: bold;
+            border: none;
+        }
+
+        button:hover {
+            box-shadow: 0 0 3px 10px rgba(173, 255, 47, 0.3);
+            transform: translate(3px, 3px);
+        }
+
+        div.progress {
+            width: 1024px;
+            height: 10px;
+            border-radius: 5px 5px 0 0;
+            background: #ccc;
+            position: relative;
+
+        }
+
+        div.progress:hover {
+            height: 30px;
+            border-radius: 15px 15px 0 0;
+        }
+
+        div.progress:hover .dot {
+            width: 30px;
+            display: block;
+        }
+
+        div.progress:hover .bar {
+            width: 30px;
+            border-radius: 15px 15px 0 0;
+            display: block;
+        }
+
+        div.progress .dot {
+            width: 10px;
+            height: 100%;
+            border-radius: 50%;
+            background: #fff;
+            position: absolute;
+            left: -15px;
+            display: none;
+        }
+
+        div.progress .dot:hover {
+            box-shadow: 0px 0px 0px 10px rgba(173, 255, 47, 0.3);
+
+        }
+
+        div.progress .bar {
+            height: 100%;
+            border-radius: 5px 5px 0 0;
+            background: #06B804;
+            position: absolute;
+            top: 0px;
+        }
+
+        div.volume {
+            width: 100px;
+            height: 30px;
+            border-radius: 15px;
+            display: none;
+            position: relative;
+            margin-right: 20px;
+            margin-top: 10px;
+            line-height: 30px;
+            background: rgba(173, 255, 47, 0.3);
+            
+        }
+
+        div.volume>div:nth-child(1) {
+            width: 100px;
+            height: 10px;
+            border-radius: 5px;
+            background: #ccc;
+            position: absolute;
+            top: 10px;
+            z-index: 3;
+        }
+
+        div.volume>div:nth-child(2) {
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 5px;
+            right: -5px;
+            z-index: 5;
+        }
+
+        div.volume>div:nth-child(3) {
+            width: 100px;
+            height: 10px;
+            border-radius: 5px;
+            background: #06B804;
+            position: absolute;
+            top: 10px;
+            z-index: 4;
+        }
+        div.control{
+            width: 1024px;
+            height: 60px;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0,0,0,0.4);
+            border-radius: 0 0 30px 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <video src="./video/c.mp4">
+
+    </video>
+    <div>
+        <div class="progress">
+            <div class="bar"></div>
+            <div class="dot"></div>
+        </div>
+        <div class="control">
+            <button>播放</button>
+            <button>00:00:00</button>
+            <button>00:00:00</button>
+            <button>音量</button>
+            <div class="volume">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>
+
+<script>
+    window.onload = function () {
+        class Video {
+            constructor() {
+                this.v = document.querySelector('video');
+                this.playBtn = document.querySelectorAll('button')[0];
+                this.currentTime = document.querySelectorAll('button')[1];
+                this.summaryTime = document.querySelectorAll('button')[2];
+                this.muteBtn = document.querySelectorAll('button')[3];
+                this.volume = document.querySelector('.volume');
+                this.progress = document.querySelector('.progress');
+                this.bar = document.querySelector('.bar');
+                this.dot = document.querySelector('.dot');
+                this.clickPlayBool = false;
+                this.clickmousemoveBool = false;
+                this.clickMolume = false;
+                this.distx = 0;
+                this.test = 0;
+                this.init();
+
+            }
+            init() {
+                this.clickPlay();
+                this.displayTime();
+                this.clickProgress();
+                this.dragDot();
+                this.muteClick();
+                this.drogVolume();
+            }
+            clickPlay() {
+                this.playBtn.addEventListener('click', this.handlePlay.bind(this));
+            }
+            //显示时间
+            displayTime() {
+                let self = this;
+
+                console.log(this.v);
+                this.v.oncanplay = function () {
+                    console.log(self.v.duration);
+
+                    let st = self.timeToHMS(self.v.duration);
+                    console.log(st);
+
+                    self.summaryTime.textContent = st;
+                    self.v.addEventListener('timeupdate', function (e) {
+                        let ct = self.timeToHMS(self.v.currentTime);
+                        self.currentTime.textContent = ct;
+                        //同时还得处理dot和bar
+                        self.bar.style.width = self.v.currentTime / self.v.duration * self.progress
+                            .offsetWidth + 'px';
+                        self.dot.style.left = self.v.currentTime / self.v.duration * self.progress
+                            .offsetWidth - 13 + 'px';
+
+                    })
+                }
+
+            }
+            //点击进程切换
+            clickProgress() {
+                this.progress.addEventListener('click', this.handleProgressClick.bind(this));
+            }
+            //时间处理
+            muteClick() {
+                this.muteBtn.addEventListener('click', this.handleShowVolume.bind(this));
+            }
+            //音量条的点击与拖动
+            drogVolume() {
+                console.log(this.v.volume);
+                this.volume.addEventListener('click', this.volumeChange.bind(this));
+            }
+            //拖拽展示
+            dragDot() {
+                this.dot.addEventListener('mousedown', this.handlerDotMouseDown.bind(this));
+            }
+            //处理时间格式
+            timeToHMS(time) {
+                let h = this.handleZero(Math.floor(time / 3600));
+                let m = this.handleZero(Math.floor(time % 3600 / 60));
+                let s = this.handleZero(Math.floor(time % 3600 % 60));
+                return h + ':' + m + ':' + s;
+            }
+            volumeChange(e) {
+                this.volume.children[1].style.left = e.offsetX + 'px';
+                this.v.volume = e.offsetX / e.target.offsetWidth;
+                this.volume.children[2].style.width = e.offsetX + 'px';
+            }
+            //clickMute
+            handleShowVolume(e) {
+                this.clickMolume = !this.clickMolume;
+                if (this.clickMolume) {
+                    this.volume.style.display = 'inline-block';
+                } else {
+                    this.volume.style.display = 'none';
+                }
+
+            }
+
+
+            handlerDotMouseDown(e) {
+                this.clickmousemoveBool = true;
+                e.stopPropagation();
+                console.log('按下了');
+                this.distx = e.offsetX;
+                this.handleDotMouseMove = this.handleDotMouseMove.bind(this);
+                this.handleDotMouseUp = this.handleDotMouseUp.bind(this);
+                document.addEventListener('mousemove', this.handleDotMouseMove);
+                document.addEventListener('mouseup', this.handleDotMouseUp);
+            }
+            handleDotMouseMove(e) {
+                console.log('移动了');
+                this.dot.style.left = e.clientX - this.distx + 'px';
+                this.bar.style.width = e.clientX - this.distx + 'px';
+
+                this.v.currentTime = (e.clientX - this.distx) / this.progress.offsetWidth * this.v.duration;
+
+            }
+            handleDotMouseUp(e) {
+
+
+                if (this.clickmousemoveBool) {
+                    console.log('释放了');
+                    document.removeEventListener('mousemove', this.handleDotMouseMove);
+                    document.removeEventListener('mouseup', this.handleDotMouseUp);
+                    console.log(this.clickmousemoveBool);
+                    let self = this;
+                    setTimeout(function () {
+                        self.clickmousemoveBool = false;
+                    }, 30)
+                }
+
+
+            }
+            handleProgressClick(e) {
+                console.log('click:' + this.clickmousemoveBool);
+                if (!this.clickmousemoveBool) {
+                    console.log('点击了')
+                    if (e.target.className === 'dot') return;
+                    this.dot.style.left = e.clientX - this.distx + 'px';
+                    this.bar.style.width = e.clientX - this.distx + 'px';
+                    this.v.currentTime = e.clientX / this.progress.offsetWidth * this.v.duration;
+                }
+
+
+
+            }
+            handleZero(time) {
+                if (time < 10) {
+                    time = '0' + time;
+                }
+                return time;
+            }
+            handlePlay(e) {
+                this.clickPlayBool = !this.clickPlayBool;
+                if (this.clickPlayBool) {
+                    this.playBtn.textContent = '暂停';
+                    this.v.play();
+                } else {
+                    this.playBtn.textContent = '播放';
+                    this.v.pause();
+                }
+            }
+        }
+        new Video();
+    }
+</script>
