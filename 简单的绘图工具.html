@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        html,
+        body {
+            background: #ddd;
+        }
+
+        canvas {
+            background: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas width="500" height="500"></canvas>
+    <button>切换橡皮擦</button>
+    <button>清空画布</button>
+    <input type="color" id="c">
+    <script>
+        let canvas = document.querySelector('canvas');
+        let ctx = canvas.getContext('2d');
+        let c = document.querySelector('#c');
+        let abtn = Array.from(document.querySelectorAll('button'));
+
+        let color = '#000';
+        let type = true;
+        canvas.width = 800;
+        canvas.height = 800;
+
+
+        c.onchange = function (e) {
+            color = e.target.value;
+        }
+        abtn[0].onclick=function(e){
+            type=!type;
+            if(type){
+                e.target.textContent='切换橡皮擦';
+            }
+            else{
+                e.target.textContent='切换画笔';
+            }
+        }
+        abtn[1].onclick = function (e) {
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        canvas.onmousedown = function (e) {
+
+            var disx = e.offsetX;
+            var disy = e.offsetY;
+            document.onmousemove = function (e) {
+                if (type) {
+                    ctx.beginPath();
+                    ctx.save();
+                    ctx.moveTo(disx, disy);
+                    ctx.lineTo(e.clientX, e.clientY);
+                    ctx.strokeStyle = color;
+                    ctx.stroke();
+                    ctx.restore();
+                    ctx.closePath();
+                }else{
+                    ctx.beginPath();
+                    ctx.save();
+                    ctx.moveTo(disx, disy);
+                    ctx.arc(disx,disy,30,0,Math.PI*2);
+                    ctx.globalCompositeOperation="destination-out";
+                    ctx.fill();
+                    ctx.restore();
+                    ctx.closePath();
+                }
+
+                disx = e.clientX;
+                disy = e.clientY;
+            }
+            document.onmouseup = function () {
+                document.onmousemove = null
+            }
+        }
+        //300*150
+    </script>
+</body>
+
+</html>
