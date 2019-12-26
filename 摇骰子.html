@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>摇动骰子</title>
+  <style>
+    body,
+    html {
+      background: #ccc;
+    }
+
+    div.wrap {
+      width: 160px;
+      height:160px;
+      /* background: red; */
+      border-radius: 50%;
+      /* border:1px solid yellow; */
+      position: relative;
+      margin:30px auto;
+      /* perspective: 1200px; */
+      transform-style: preserve-3d;
+      transform-origin: center center;
+      /* transition:all 1s linear 0s; */
+      transform: rotateX(30deg) rotateY(30deg);
+
+    }
+
+    section {
+      width: 100px;
+      height: 100px;
+      box-sizing: border-box;
+      padding:10px;
+      border-radius: 5px;
+      border: 1px solid;
+      display:flex;
+      position:absolute;
+      top:30px;
+      left:30px;
+      background:#fff;
+
+    }
+
+    span{
+      display: block;
+      width:20px;
+      height: 20px;
+      background:#000;
+      border-radius: 50%;
+    }
+
+    section:nth-of-type(1){
+      justify-content: center;
+      align-items: center;
+      transform:translateZ(50px);
+    }
+    section:nth-of-type(2){
+      justify-content: space-between;
+      transform:rotateY(180deg) translateZ(50px);
+    }
+    section:nth-of-type(2)>span:nth-of-type(2){
+      align-self: flex-end;
+    }
+
+    section:nth-of-type(3){
+      justify-content: space-between;
+      transform:rotateY(90deg) translateZ(50px);
+    }
+    section:nth-of-type(3)>span:nth-of-type(2){
+      align-self: center;
+    }
+    section:nth-of-type(3)>span:nth-of-type(3){
+      align-self: flex-end;
+    }
+
+    section:nth-of-type(4){
+      justify-content: space-between;
+      transform:rotateY(-90deg) translateZ(50px);
+
+    }
+    section:nth-of-type(4)>div{
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+
+    }
+    section:nth-of-type(5){
+      justify-content: space-between;
+      transform:rotateX(90deg) translateZ(50px);
+    }
+    section:nth-of-type(5)>div{
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    section:nth-of-type(5)>div:nth-of-type(2){
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    section:nth-of-type(6){
+      justify-content: space-between;
+      transform:rotateX(-90deg) translateZ(50px);
+
+    }
+    section:nth-of-type(6)>div{
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <section>
+      <span></span>
+    </section>
+    <section>
+      <span></span><span></span>
+    </section>
+    <section>
+      <span></span>
+      <span></span>
+      <span></span>
+    </section>
+    <section>
+      <div><span></span><span></span></div>
+      <div><span></span><span></span></div>
+    </section>
+    <section>
+      <div><span></span><span></span></div>
+      <div><span></span></div>
+      <div><span></span><span></span></div>
+    </section>
+    <section>
+      <div>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </section>
+  </div>
+  <div>
+    <button class="btn1">开始</button>
+    <button class="btn2">停止</button>
+  </div>
+  <script>
+    /*
+      先把六个面都搞出来
+    */
+    let div=document.querySelector('.wrap');
+    let start=document.querySelector('.btn1');
+    let end=document.querySelector('.btn2');
+    let i=0,j=0,k=0;
+
+    let ids;
+    start.onclick=function(){
+      if(!ids){
+        ids=setInterval(function(){
+          i++;
+          j++;
+          k++;
+          if(i>90){i=0;}
+          if(j>90){j=0;}
+          if(k>90)k=0;
+          div.style.transform=`rotateX(${i*4}deg) rotateY(${j*4}deg) translateX(${k}px)`;
+
+        },10);
+      }
+
+      end.onclick=function(){
+        clearInterval(ids);
+        let _i=Math.floor(Math.random()*4);
+        let _j=Math.floor(Math.random()*4);
+        div.style.transform=`rotateX(${_i*90}deg) rotateY(${_j*90}deg)`;
+        ids=null;
+        this.onclick=null;
+      }
+    }
+  </script>
+</body>
+
+</html>
